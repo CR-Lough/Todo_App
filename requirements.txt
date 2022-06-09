@@ -1,0 +1,8 @@
+loguru
+pysnooper
+peewee
+pandas
+pymongo[srv]
+sqlalchemy
+requests
+cerberus
