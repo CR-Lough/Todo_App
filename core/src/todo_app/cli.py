@@ -5,7 +5,7 @@ from typing import List, Optional
 
 import typer
 
-from rptodo import ERRORS, __app_name__, __version__, config, database, rptodo
+from todo import ERRORS, __app_name__, __version__, config, database, todo
 
 app = typer.Typer()
 
@@ -38,20 +38,20 @@ def init(
         typer.secho(f"The to-do database is {db_path}", fg=typer.colors.GREEN)
 
 
-def get_todoer() -> rptodo.Todoer:
+def get_todoer() -> todo.Todoer:
     if config.CONFIG_FILE_PATH.exists():
         db_path = database.get_database_path(config.CONFIG_FILE_PATH)
     else:
         typer.secho(
-            'Config file not found. Please, run "rptodo init"',
+            'Config file not found. Please, run "todo init"',
             fg=typer.colors.RED,
         )
         raise typer.Exit(1)
     if db_path.exists():
-        return rptodo.Todoer(db_path)
+        return todo.Todoer(db_path)
     else:
         typer.secho(
-            'Database not found. Please, run "rptodo init"',
+            'Database not found. Please, run "todo init"',
             fg=typer.colors.RED,
         )
         raise typer.Exit(1)

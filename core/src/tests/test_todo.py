@@ -3,14 +3,14 @@ import json
 import pytest
 from typer.testing import CliRunner
 
-from rptodo import (
+from todo import (
     DB_READ_ERROR,
     ID_ERROR,
     SUCCESS,
     __app_name__,
     __version__,
     cli,
-    rptodo,
+    todo,
 )
 
 
@@ -68,7 +68,7 @@ test_data2 = {
     ],
 )
 def test_add(mock_json_file, description, priority, expected):
-    todoer = rptodo.Todoer(mock_json_file)
+    todoer = todo.Todoer(mock_json_file)
     assert todoer.add(description, priority) == expected
     read = todoer._db_handler.read_todos()
     assert len(read.todo_list) == 2
@@ -81,7 +81,7 @@ def mock_wrong_json_file(tmp_path):
 
 
 def test_add_wrong_json_file(mock_wrong_json_file):
-    todoer = rptodo.Todoer(mock_wrong_json_file)
+    todoer = todo.Todoer(mock_wrong_json_file)
     response = todoer.add(["test task"], 1)
     assert response.error == DB_READ_ERROR
     read = todoer._db_handler.read_todos()
@@ -97,7 +97,7 @@ def mock_wrong_json_format(tmp_path):
 
 
 def test_add_wrong_json_format(mock_wrong_json_format):
-    todoer = rptodo.Todoer(mock_wrong_json_format)
+    todoer = todo.Todoer(mock_wrong_json_format)
     assert todoer.add(test_data1["description"], test_data1["priority"]) == (
         test_data1["todo"],
         SUCCESS,
@@ -122,7 +122,7 @@ test_todo2 = {}
     ],
 )
 def test_set_done(mock_json_file, todo_id, expected):
-    todoer = rptodo.Todoer(mock_json_file)
+    todoer = todo.Todoer(mock_json_file)
     assert todoer.set_done(todo_id) == expected
 
 
@@ -142,10 +142,10 @@ test_todo4 = {}
     ],
 )
 def test_remove(mock_json_file, todo_id, expected):
-    todoer = rptodo.Todoer(mock_json_file)
+    todoer = todo.Todoer(mock_json_file)
     assert todoer.remove(todo_id) == expected
 
 
 def test_remove_all(mock_json_file):
-    todoer = rptodo.Todoer(mock_json_file)
+    todoer = todo.Todoer(mock_json_file)
     assert todoer.remove_all() == ({}, SUCCESS)
