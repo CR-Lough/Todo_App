@@ -2,6 +2,8 @@
 
 from pathlib import Path
 from typing import List, Optional
+import sqlite3
+from datetime import date, timedelta, datetime
 
 import typer
 
@@ -9,6 +11,8 @@ from todo import ERRORS, __app_name__, __version__, config, database, todo
 
 app = typer.Typer()
 
+def to_date(s):
+    return datetime.strptime(s, '%Y-%m-%d')
 
 @app.command()
 def init(
@@ -59,31 +63,29 @@ def get_todoer() -> todo.Todoer:
 
 @app.command()
 def add(
-    description: List[str] = typer.Argument(...),
+    name: str = typer.Argument(...),
+    description: str = typer.Argument(...),
+    start_date: str = typer.Option(str(date.today()), "--startdate", "-sd"),
+    due_date: str = typer.Option(str(date.today()), "--duedate", "-dd"),
     priority: int = typer.Option(2, "--priority", "-p", min=1, max=3),
+    complete: int = typer.Option(0, "--complete", "-c", min=0, max=1),
+    deleted: int = typer.Option(0, "--deleted", "-d", min=0, max=1)
 ) -> None:
     """Add a new to-do with a DESCRIPTION."""
     todoer = get_todoer()
-    todo, error = todoer.add(description, priority)
-    if error:
-        typer.secho(
-            f'Adding to-do failed with "{ERRORS[error]}"', fg=typer.colors.RED
-        )
-        raise typer.Exit(1)
-    else:
-        typer.secho(
-            f"""to-do: "{todo['Description']}" was added """
-            f"""with priority: {priority}""",
-            fg=typer.colors.GREEN,
-        )
-
+    todo = todoer.add(name, description, start_date, due_date, priority, complete, deleted)
+    return todo
 
 @app.command(name="list")
-def list_all() -> None:
+def list_all(
+    method: str = typer.Argument(...),
+    start: str = typer.Option('', "--start", "-s"),
+    end: str = typer.Option('', "--end", "-e")
+) -> None:
     """List all to-dos."""
     todoer = get_todoer()
-    todo_list = todoer.get_todo_list()
-    if len(todo_list) == 0:
+    todo_list = todoer.get_todo_list(method,start,end)
+    if not todo_list:
         typer.secho(
             "There are no tasks in the to-do list yet", fg=typer.colors.RED
         )
@@ -91,20 +93,28 @@ def list_all() -> None:
     typer.secho("\nto-do list:\n", fg=typer.colors.BLUE, bold=True)
     columns = (
         "ID.  ",
+        "| Name         ",
+        "| Description                ",
+        "| Start Date   ",
+        "| Due Date   ",
         "| Priority  ",
         "| Done  ",
-        "| Description  ",
+        "| Deleted  ",
     )
     headers = "".join(columns)
     typer.secho(headers, fg=typer.colors.BLUE, bold=True)
     typer.secho("-" * len(headers), fg=typer.colors.BLUE)
-    for id, todo in enumerate(todo_list, 1):
-        desc, priority, done = todo.values()
+    for todo in todo_list:
+        id,name,desc,sd,dd,pr,done,deleted = list(todo)
         typer.secho(
             f"{id}{(len(columns[0]) - len(str(id))) * ' '}"
-            f"| ({priority}){(len(columns[1]) - len(str(priority)) - 4) * ' '}"
-            f"| {done}{(len(columns[2]) - len(str(done)) - 2) * ' '}"
-            f"| {desc}",
+            f"| {name}{(len(columns[1]) - len(str(name)) - 2) * ' '}"
+            f"| {desc}{(len(columns[2]) - len(str(desc)) - 2) * ' '}"
+            f"| {sd}{(len(columns[3]) - len(str(sd)) - 2) * ' '}"
+            f"| {dd}{(len(columns[4]) - len(str(dd)) - 2) * ' '}"
+            f"| {pr}{(len(columns[5]) - len(str(pr)) - 2) * ' '}"
+            f"| {done}{(len(columns[6]) - len(str(done)) - 2) * ' '}"
+            f"| {deleted}",
             fg=typer.colors.BLUE,
         )
     typer.secho("-" * len(headers) + "\n", fg=typer.colors.BLUE)

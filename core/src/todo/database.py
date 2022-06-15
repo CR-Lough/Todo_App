@@ -4,11 +4,12 @@ import configparser
 import json
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple
+import sqlite3
 
 from todo import DB_READ_ERROR, DB_WRITE_ERROR, JSON_ERROR, SUCCESS
 
 DEFAULT_DB_FILE_PATH = Path.home().joinpath(
-    "." + Path.home().stem + "_todo.json"
+    "." + Path.home().stem + "_todo.db"
 )
 
 
@@ -21,11 +22,25 @@ def get_database_path(config_file: Path) -> Path:
 
 def init_database(db_path: Path) -> int:
     """Create the to-do database."""
+    conn = None
     try:
-        db_path.write_text("[]")  # Empty to-do list
+        conn = sqlite3.connect(db_path) # Empty to-do database
+        conn.execute("""CREATE TABLE TASKS
+         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+         NAME TEXT NOT NULL,
+         DESCRIPTION TEXT NOT NULL,
+         START_DATE DATE,
+         DUE_DATE DATE,
+         PRIORITY INT,
+         COMPLETE INT,
+         DELETED INT);""")
+        print('sqlite3.version') 
         return SUCCESS
     except OSError:
         return DB_WRITE_ERROR
+    finally:
+        if conn:
+            conn.close()
 
 
 class DBResponse(NamedTuple):
