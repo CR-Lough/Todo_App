@@ -1,5 +1,3 @@
-"""This module provides the RP To-Do config functionality."""
-
 import configparser
 from pathlib import Path
 

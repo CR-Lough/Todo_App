@@ -1,5 +1,3 @@
-"""RP To-Do entry point script."""
-
 from todo import cli, __app_name__
 
 
