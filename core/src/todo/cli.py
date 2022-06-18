@@ -8,7 +8,7 @@ from flask import jsonify
 import typer
 
 from todo import ERRORS, __app_name__, __version__, config, database, todo
-from todo.todo import Todoer
+from todo.todo import Todoer, List
 
 ##############################################################################
 ############### DEFAULT TERMINAL, BUT OPTIONAL TO API ########################
@@ -63,7 +63,7 @@ def get_todoer() -> todo.Todoer:
         )
         raise typer.Exit(1)
     if db_path.exists():
-        return todo.Todoer(db_path)
+        return todo.Todoer()
 
     else:
         typer.secho(
@@ -90,23 +90,23 @@ def add(
 @app.command(name="list")
 def list_all(
     method: str = typer.Argument(...),
-    start: str = typer.Option('', "--start", "-s"),
-    end: str = typer.Option('', "--end", "-e"),
-    api: int = typer.Option(0,"--api", "-a",min=0, max=1)
+    start: str = typer.Option('none', "--start", "-s"),
+    end: str = typer.Option('none', "--end", "-e"),
+    api_bool: int = typer.Option(0,"--api", "-a",min=0, max=1)
 ) -> None:
     """List all to-dos."""
     app = Flask(__name__)
     api = Api(app)
     with app.app_context():
-        todoer = get_todoer()
-        todo_list = todoer.get_todo_list(method,start,end,api)
+        todoer = List()
+        todo_list = todoer.get(method,start,end,api_bool)
         if not todo_list:
             typer.secho(
                 "There are no tasks in the to-do list yet", fg=typer.colors.RED
             )
             raise typer.Exit()
-        if api:
-            api.add_resource(Todoer, "/tasks")
+        if int(api_bool) == 1:
+            api.add_resource(List, "/tasks/<method>/<start>/<end>")
             app.run(port="5000")
         else:
             typer.secho("\nto-do list:\n", fg=typer.colors.BLUE, bold=True)

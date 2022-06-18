@@ -16,7 +16,7 @@ class CurrentTodo(NamedTuple):
     error: int
 
 
-class Todoer(Resource):
+class Todoer(): 
     def __init__(self, db_path: Path) -> None:
        self._db_handler = DatabaseHandler(db_path)
        
@@ -60,98 +60,8 @@ class Todoer(Resource):
         conn.close()
 
         return params
-    
-    def get_todo_list(self, method:str, start:str, end:str, api:int) -> List[tuple]:
-        """Get different types of to-do lists from the database
+ 
 
-        :param method: type of to-do list
-        :type method: str
-        :param start: optional, start date to search 
-        :type start: str
-        :param end: optional, end date to search 
-        :type end: str
-        :return: returns the database rows as a list of tuples
-        :rtype: list of tuples
-        """
-        # app = Flask(__name__)
-        # with app.app_context():
-        keys = ('ID','NAME','DESCRIPTION','TEXT','START_DATE','DUE_DATE',
-                'PRIORITY','COMPLETE','DELETED')
-        conn = sqlite3.connect("C:/Users/Connor/.Connor_todo.db")
-        print("Opened database successfully")
-        if method == "task_number":
-            cursor = conn.execute(f"""
-                SELECT *
-                FROM TASKS 
-                ORDER BY ID ASC
-            """)
-            if api==1:
-                result = {"data": [dict(zip(tuple(keys), i))
-                    for i in cursor]}
-                return jsonify(result)
-            else:
-                result = [row for row in cursor]
-                result = iter(result)
-                return result
-        elif method == "priority":
-            cursor = conn.execute(f"""
-                SELECT *
-                FROM TASKS 
-                ORDER BY PRIORITY DESC
-            """) 
-            if api==1:
-                result = {"data": [dict(zip(tuple(keys), i))
-                    for i in cursor]}
-                return jsonify(result)
-            else:
-                result = [row for row in cursor]
-                result = iter(result)
-                return result
-        elif method == "due_date":
-            cursor = conn.execute(f"""
-                SELECT *
-                FROM TASKS 
-                ORDER BY DUE_DATE DESC
-            """)
-            if api==1:
-                result = {"data": [dict(zip(tuple(keys), i))
-                    for i in cursor]}
-                return jsonify(result)
-            else:
-                result = [row for row in cursor]
-                result = iter(result)
-                return result
-        elif method == "closed_range":
-            cursor = conn.execute(f"""
-                SELECT *
-                FROM TASKS 
-                WHERE DUE_DATE BETWEEN '{to_date(start)}' AND '{to_date(end)}'
-            """)
-            if api==1:
-                result = {"data": [dict(zip(tuple(keys), i))
-                    for i in cursor]}
-                return jsonify(result)
-            else:
-                result = [row for row in cursor]
-                result = iter(result)
-                return result
-        elif method == "overdue":
-            cursor = conn.execute(f"""
-                SELECT *
-                FROM TASKS 
-                WHERE DATE(DUE_DATE) < {(datetime.now()).date()}
-            """)
-            if api==1:
-                result = {"data": [dict(zip(tuple(keys), i))
-                    for i in cursor]}
-                return jsonify(result)
-            else:
-                result = [row for row in cursor]
-                result = iter(result)
-                return result
-        else: 
-            print('not an option')
-            
     def set_done(self, todo_id: int) -> None:
         """Set a to-do as done 
 
@@ -208,3 +118,94 @@ class Todoer(Resource):
         conn.execute(f"UPDATE TASKS set DELETED = 1 where ID = {todo_id};")
         conn.commit()
         conn.close()
+
+class List(Resource):
+    def get(self, method:str='priority', start:str="none", end:str="none", api_bool:int=1) -> List[tuple]:
+        """Get different types of to-do lists from the database
+        :param method: type of to-do list
+        :type method: str
+        :param start: optional, start date to search 
+        :type start: str
+        :param end: optional, end date to search 
+        :type end: str
+        :return: returns the database rows as a list of tuples
+        :rtype: list of tuples
+        """
+        # app = Flask(__name__)
+        # with app.app_context():
+        keys = ('ID','NAME','DESCRIPTION','TEXT','START_DATE','DUE_DATE',
+                'PRIORITY','COMPLETE','DELETED')
+        conn = sqlite3.connect("C:/Users/Connor/.Connor_todo.db")
+        print("Opened database successfully")
+        if method == "task_number":
+            cursor = conn.execute(f"""
+                SELECT *
+                FROM TASKS 
+                ORDER BY ID ASC
+            """)
+            if api_bool==1:
+                result = {"data": [dict(zip(tuple(keys), i))
+                    for i in cursor]}
+                return jsonify(result)
+            else:
+                result = [row for row in cursor]
+                result = iter(result)
+                return result
+        elif method == "priority":
+            cursor = conn.execute(f"""
+                SELECT *
+                FROM TASKS 
+                ORDER BY PRIORITY DESC
+            """) 
+            if api_bool==1:
+                result = {"data": [dict(zip(tuple(keys), i))
+                    for i in cursor]}
+                return jsonify(result)
+            else:
+                result = [row for row in cursor]
+                result = iter(result)
+                return result
+        elif method == "due_date":
+            cursor = conn.execute(f"""
+                SELECT *
+                FROM TASKS 
+                ORDER BY DUE_DATE DESC
+            """)
+            if api_bool==1:
+                result = {"data": [dict(zip(tuple(keys), i))
+                    for i in cursor]}
+                return jsonify(result)
+            else:
+                result = [row for row in cursor]
+                result = iter(result)
+                return result
+        elif method == "closed_range":
+            cursor = conn.execute(f"""
+                SELECT *
+                FROM TASKS 
+                WHERE DUE_DATE BETWEEN '{to_date(start)}' AND '{to_date(end)}'
+            """)
+            if api_bool==1:
+                result = {"data": [dict(zip(tuple(keys), i))
+                    for i in cursor]}
+                return jsonify(result)
+            else:
+                result = [row for row in cursor]
+                result = iter(result)
+                return result
+        elif method == "overdue":
+            cursor = conn.execute(f"""
+                SELECT *
+                FROM TASKS 
+                WHERE DATE(DUE_DATE) < {(datetime.now()).date()}
+            """)
+            if api_bool==1:
+                result = {"data": [dict(zip(tuple(keys), i))
+                    for i in cursor]}
+                return jsonify(result)
+            else:
+                result = [row for row in cursor]
+                result = iter(result)
+                return result
+        else: 
+            print('not an option')
