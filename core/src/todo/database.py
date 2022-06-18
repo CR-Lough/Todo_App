@@ -1,5 +1,7 @@
 import configparser
 from pathlib import Path
+from flask import Flask
+from flask_restful import Resource, Api
 import sqlite3
 
 from todo import DB_WRITE_ERROR, SUCCESS
@@ -38,6 +40,6 @@ def init_database(db_path: Path) -> int:
         if conn:
             conn.close()
 
-class DatabaseHandler:
+class DatabaseHandler(Resource):
     def __init__(self, db_path: Path) -> None:
         self._db_path = db_path

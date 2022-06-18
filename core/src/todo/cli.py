@@ -2,10 +2,17 @@ from pathlib import Path
 from typing import List, Optional
 import sqlite3
 from datetime import date, timedelta, datetime
-
+from flask import Flask
+from flask_restful import Resource, Api
+from flask import jsonify
 import typer
 
 from todo import ERRORS, __app_name__, __version__, config, database, todo
+from todo.todo import Todoer
+
+##############################################################################
+############### DEFAULT TERMINAL, BUT OPTIONAL TO API ########################
+##############################################################################
 
 app = typer.Typer()
 
@@ -57,13 +64,13 @@ def get_todoer() -> todo.Todoer:
         raise typer.Exit(1)
     if db_path.exists():
         return todo.Todoer(db_path)
+
     else:
         typer.secho(
             'Database not found. Please, run "todo init"',
             fg=typer.colors.RED,
         )
         raise typer.Exit(1)
-
 
 @app.command()
 def add(
@@ -84,44 +91,52 @@ def add(
 def list_all(
     method: str = typer.Argument(...),
     start: str = typer.Option('', "--start", "-s"),
-    end: str = typer.Option('', "--end", "-e")
+    end: str = typer.Option('', "--end", "-e"),
+    api: int = typer.Option(0,"--api", "-a",min=0, max=1)
 ) -> None:
     """List all to-dos."""
-    todoer = get_todoer()
-    todo_list = todoer.get_todo_list(method,start,end)
-    if not todo_list:
-        typer.secho(
-            "There are no tasks in the to-do list yet", fg=typer.colors.RED
-        )
-        raise typer.Exit()
-    typer.secho("\nto-do list:\n", fg=typer.colors.BLUE, bold=True)
-    columns = (
-        "ID.  ",
-        "| Name         ",
-        "| Description                ",
-        "| Start Date         ",
-        "| Due Date           ",
-        "| Priority  ",
-        "| Done  ",
-        "| Deleted  ",
-    )
-    headers = "".join(columns)
-    typer.secho(headers, fg=typer.colors.BLUE, bold=True)
-    typer.secho("-" * len(headers), fg=typer.colors.BLUE)
-    for todo in todo_list:
-        id,name,desc,sd,dd,pr,done,deleted = list(todo)
-        typer.secho(
-            f"{id}{(len(columns[0]) - len(str(id))) * ' '}"
-            f"| {name}{(len(columns[1]) - len(str(name)) - 2) * ' '}"
-            f"| {desc}{(len(columns[2]) - len(str(desc)) - 2) * ' '}"
-            f"| {sd}{(len(columns[3]) - len(str(sd)) - 2) * ' '}"
-            f"| {dd}{(len(columns[4]) - len(str(dd)) - 2) * ' '}"
-            f"| {pr}{(len(columns[5]) - len(str(pr)) - 2) * ' '}"
-            f"| {done}{(len(columns[6]) - len(str(done)) - 2) * ' '}"
-            f"| {deleted}",
-            fg=typer.colors.BLUE,
-        )
-    typer.secho("-" * len(headers) + "\n", fg=typer.colors.BLUE)
+    app = Flask(__name__)
+    api = Api(app)
+    with app.app_context():
+        todoer = get_todoer()
+        todo_list = todoer.get_todo_list(method,start,end,api)
+        if not todo_list:
+            typer.secho(
+                "There are no tasks in the to-do list yet", fg=typer.colors.RED
+            )
+            raise typer.Exit()
+        if api:
+            api.add_resource(Todoer, "/tasks")
+            app.run(port="5000")
+        else:
+            typer.secho("\nto-do list:\n", fg=typer.colors.BLUE, bold=True)
+            columns = (
+                "ID.  ",
+                "| Name         ",
+                "| Description                ",
+                "| Start Date         ",
+                "| Due Date           ",
+                "| Priority  ",
+                "| Done  ",
+                "| Deleted  ",
+            )
+            headers = "".join(columns)
+            typer.secho(headers, fg=typer.colors.BLUE, bold=True)
+            typer.secho("-" * len(headers), fg=typer.colors.BLUE)
+            for todo in todo_list:
+                id,name,desc,sd,dd,pr,done,deleted = list(todo)
+                typer.secho(
+                    f"{id}{(len(columns[0]) - len(str(id))) * ' '}"
+                    f"| {name}{(len(columns[1]) - len(str(name)) - 2) * ' '}"
+                    f"| {desc}{(len(columns[2]) - len(str(desc)) - 2) * ' '}"
+                    f"| {sd}{(len(columns[3]) - len(str(sd)) - 2) * ' '}"
+                    f"| {dd}{(len(columns[4]) - len(str(dd)) - 2) * ' '}"
+                    f"| {pr}{(len(columns[5]) - len(str(pr)) - 2) * ' '}"
+                    f"| {done}{(len(columns[6]) - len(str(done)) - 2) * ' '}"
+                    f"| {deleted}",
+                    fg=typer.colors.BLUE,
+                )
+            typer.secho("-" * len(headers) + "\n", fg=typer.colors.BLUE)
 
 
 @app.command(name="complete")
