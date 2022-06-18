@@ -1,0 +1,65 @@
+commit 9242aa8053e4211a6ef68bee0446f18720a25956
+Author: CR-Lough <crlough@outlook.com>
+Date:   Sat Jun 18 14:14:16 2022 -0700
+
+    chore: final commit
+
+commit 491e72b681a9e733c04c4aa34ffc74e6035394f0
+Author: CR-Lough <crlough@outlook.com>
+Date:   Sat Jun 18 13:10:06 2022 -0700
+
+    chore: checkpoint before removing autoref
+
+commit 1d91c17d16d05e5d5a849e264982ba8ccc22c6e5
+Author: Connor Lough <crlough@outlook.com>
+Date:   Wed Jun 15 20:21:06 2022 -0700
+
+    chore: ready for pt 2
+
+commit 10e8ecc2397b96627370eda3e236cd55bd9b107a
+Author: CR-Lough <crlough@outlook.com>
+Date:   Tue Jun 14 19:41:00 2022 -0700
+
+    chore: update all core subfolders
+
+commit 1b6310768d34893b463b4fd6eaeb6e01ee80a5f7
+Author: CR-Lough <crlough@outlook.com>
+Date:   Sat Jun 11 11:45:46 2022 -0700
+
+    chore: updates
+
+commit 70daed03cfdaf1c2a560aa891d57784561bc931e
+Author: crlough <connor.lough@pitchbook.com>
+Date:   Sat Jun 11 10:58:50 2022 -0700
+
+    chore: update configs
+
+commit 4b63baa1fc26a0b41af4bb23e086ee9b2cbdb1b2
+Author: connor.lough <connor.lough@pitchbook.com>
+Date:   Sat Jun 11 10:44:11 2022 -0700
+
+    chore: add new scripts
+
+commit f66339bc53a27dacc451e4649d660bb528c6e9e2
+Author: CR-Lough <crlough@outlook.com>
+Date:   Wed Jun 8 20:42:50 2022 -0700
+
+    chore: add some old hw files to manipulate
+
+commit de5a293676e780a3952a401b2a9984d645c55fe7
+Author: Connor Lough <crlough@outlook.com>
+Date:   Wed Jun 8 19:22:41 2022 -0700
+
+    chore: create core/
+
+commit 61635be4412d76634d503f8c5a933bfdd1468e37
+Author: CR-Lough <crlough@outlook.com>
+Date:   Wed Jun 8 18:48:31 2022 -0700
+
+    chore: add DockerFile and DockerCompose
+
+commit e635ac15cf7e05def8f017378822a313170de6db
+Author: Connor Lough <crlough@outlook.com>
+Date:   Wed Jun 8 18:28:20 2022 -0700
+
+    Initial commit
